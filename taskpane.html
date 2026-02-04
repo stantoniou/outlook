@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Email Contact Analyzer</title>
+    
+    <!-- Office.js -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #2c3e50;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .controls {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0078d4 0%, #0063b1 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0063b1 0%, #004e8c 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,120,212,0.3);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .filter-section label {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .filter-section input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .filter-section input:focus {
+            outline: none;
+            border-color: #0078d4;
+        }
+        
+        .stats {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0078d4;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .contacts-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .contact-card {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .contact-card:last-child {
+            border-bottom: none;
+        }
+        
+        .contact-card:hover {
+            background: #f9fafb;
+            transform: translateX(4px);
+        }
+        
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .contact-email {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .contact-count {
+            background: #0078d4;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .contact-details {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .detail-badge {
+            padding: 4px 8px;
+            background: #f3f4f6;
+            border-radius: 6px;
+        }
+        
+        .detail-badge.to { background: #dbeafe; color: #1e40af; }
+        .detail-badge.cc { background: #fef3c7; color: #92400e; }
+        .detail-badge.bcc { background: #f3e8ff; color: #6b21a8; }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #0078d4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        #status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: none;
+        }
+        
+        #status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            display: block;
+        }
+        
+        #status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+        
+        #status.success {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>📧 Email Contact Analyzer</h1>
+        <div class="subtitle">Analyze and organize your emails by contact</div>
+    </div>
+    
+    <div class="controls">
+        <div class="button-group">
+            <button id="scanButton" class="btn-primary">Scan Emails</button>
+            <button id="clearButton" class="btn-secondary">Clear Results</button>
+        </div>
+        
+        <div id="status"></div>
+        
+        <div class="filter-section">
+            <label for="searchInput">Search:</label>
+            <input type="text" id="searchInput" placeholder="Filter by email address...">
+        </div>
+    </div>
+    
+    <div id="statsContainer" style="display: none;" class="stats">
+        <div class="stat-item">
+            <div class="stat-value" id="totalContacts">0</div>
+            <div class="stat-label">Contacts</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="totalEmails">0</div>
+            <div class="stat-label">Emails</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="avgPerContact">0</div>
+            <div class="stat-label">Avg/Contact</div>
+        </div>
+    </div>
+    
+    <div class="contacts-container">
+        <div id="contactsList">
+            <div class="empty-state">
+                <div class="empty-state-icon">📬</div>
+                <p>Click "Scan Emails" to analyze your inbox</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="taskpane.js"></script>
+</body>
+</html>
