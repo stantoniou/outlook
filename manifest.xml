@@ -5,19 +5,19 @@
            xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
            xsi:type="MailApp">
   
-  <Id>12345678-1234-1234-1234-123456789012</Id>
+  <Id>a3c4f8e2-9b7d-4e1a-8c5f-2d6b9e3a7c1f</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Your Company</ProviderName>
+  <ProviderName>Stavros Antoniou</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   
   <DisplayName DefaultValue="Email Contact Analyzer"/>
   <Description DefaultValue="Scans emails and creates a contact-based view of your inbox"/>
-  <IconUrl DefaultValue="https://yourdomain.com/assets/icon-64.png"/>
-  <HighResolutionIconUrl DefaultValue="https://yourdomain.com/assets/icon-128.png"/>
-  <SupportUrl DefaultValue="https://yourdomain.com/support"/>
+  <IconUrl DefaultValue="https://stantoniou.github.io/outlook/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://stantoniou.github.io/outlook/assets/icon-128.png"/>
+  <SupportUrl DefaultValue="https://github.com/stantoniou/outlook"/>
   
   <AppDomains>
-    <AppDomain>https://yourdomain.com</AppDomain>
+    <AppDomain>https://stantoniou.github.io</AppDomain>
   </AppDomains>
   
   <Hosts>
@@ -33,7 +33,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://yourdomain.com/taskpane.html"/>
+        <SourceLocation DefaultValue="https://stantoniou.github.io/outlook/email-analyzer-app.html"/>
         <RequestedHeight>450</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -91,13 +91,13 @@
       
       <Resources>
         <bt:Images>
-          <bt:Image id="Icon.16x16" DefaultValue="https://yourdomain.com/assets/icon-16.png"/>
-          <bt:Image id="Icon.32x32" DefaultValue="https://yourdomain.com/assets/icon-32.png"/>
-          <bt:Image id="Icon.80x80" DefaultValue="https://yourdomain.com/assets/icon-80.png"/>
+          <bt:Image id="Icon.16x16" DefaultValue="https://stantoniou.github.io/outlook/assets/icon-16.png"/>
+          <bt:Image id="Icon.32x32" DefaultValue="https://stantoniou.github.io/outlook/assets/icon-32.png"/>
+          <bt:Image id="Icon.80x80" DefaultValue="https://stantoniou.github.io/outlook/assets/icon-80.png"/>
         </bt:Images>
         <bt:Urls>
-          <bt:Url id="Commands.Url" DefaultValue="https://yourdomain.com/commands.html"/>
-          <bt:Url id="Taskpane.Url" DefaultValue="https://yourdomain.com/taskpane.html"/>
+          <bt:Url id="Commands.Url" DefaultValue="https://stantoniou.github.io/outlook/commands.html"/>
+          <bt:Url id="Taskpane.Url" DefaultValue="https://stantoniou.github.io/outlook/email-analyzer-app.html"/>
         </bt:Urls>
         <bt:ShortStrings>
           <bt:String id="GroupLabel" DefaultValue="Contact Analyzer"/>
