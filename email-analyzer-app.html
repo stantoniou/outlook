@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Contact Analyzer</title>
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            height: 100vh;
+            overflow: hidden;
+            color: #fff;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* Top Header */
+        .top-header {
+            background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+            padding: 12px 20px;
+            border-bottom: 1px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        
+        .app-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .search-box {
+            padding: 8px 16px;
+            background: #4a4a4a;
+            border: 1px solid #5a5a5a;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 13px;
+            width: 250px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #0078d4;
+            background: #555;
+        }
+        
+        .scan-button {
+            padding: 8px 20px;
+            background: linear-gradient(180deg, #0078d4 0%, #0063b1 100%);
+            border: 1px solid #0063b1;
+            border-radius: 4px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .scan-button:hover {
+            background: linear-gradient(180deg, #0063b1 0%, #004e8c 100%);
+        }
+        
+        .scan-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Left Sidebar - Contacts */
+        .contacts-sidebar {
+            width: 280px;
+            background: #2a2a2a;
+            border-right: 1px solid #000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 12px 16px;
+            background: #333;
+            border-bottom: 1px solid #000;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .contact-count {
+            background: #0078d4;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+            background: #2a2a2a;
+        }
+        
+        .contacts-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .contacts-list::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        .contacts-list::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 4px;
+        }
+        
+        .contact-item {
+            padding: 10px 16px;
+            border-bottom: 1px solid #1a1a1a;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .contact-item:hover {
+            background: #353535;
+        }
+        
+        .contact-item.selected {
+            background: #0078d4;
+            border-left: 3px solid #00a2ff;
+        }
+        
+        .contact-icon {
+            width: 10px;
+            height: 10px;
+            background: #666;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        .contact-item.selected .contact-icon {
+            background: #fff;
+        }
+        
+        .contact-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .contact-name {
+            font-size: 13px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .contact-email {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .contact-badge {
+            background: #444;
+            color: #aaa;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .contact-item.selected .contact-badge {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        
+        /* Right Panel - Emails */
+        .emails-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+            overflow: hidden;
+        }
+        
+        .emails-header {
+            padding: 12px 20px;
+            background: #2a2a2a;
+            border-bottom: 1px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .emails-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .email-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .stat-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        
+        .stat-badge.to { background: #1e40af; color: #dbeafe; }
+        .stat-badge.cc { background: #92400e; color: #fef3c7; }
+        .stat-badge.bcc { background: #6b21a8; color: #f3e8ff; }
+        
+        .emails-list {
+            flex: 1;
+            overflow-y: auto;
+            background: #1a1a1a;
+        }
+        
+        .emails-list::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .emails-list::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        
+        .emails-list::-webkit-scrollbar-thumb {
+            background: #3a3a3a;
+            border-radius: 5px;
+        }
+        
+        .email-row {
+            display: grid;
+            grid-template-columns: 40px 200px 1fr 160px;
+            gap: 12px;
+            padding: 10px 20px;
+            border-bottom: 1px solid #2a2a2a;
+            align-items: center;
+            transition: background 0.15s;
+        }
+        
+        .email-row:hover {
+            background: #252525;
+        }
+        
+        .email-row.unread {
+            background: #1e1e1e;
+        }
+        
+        .email-icon {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .icon-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .icon-indicator.to { background: #3b82f6; }
+        .icon-indicator.cc { background: #f59e0b; }
+        .icon-indicator.bcc { background: #a855f7; }
+        
+        .email-from {
+            font-size: 13px;
+            color: #fff;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .email-subject {
+            font-size: 13px;
+            color: #ccc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .email-row.unread .email-subject {
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .email-date {
+            font-size: 12px;
+            color: #888;
+            text-align: right;
+        }
+        
+        /* Empty States */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            padding: 40px;
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .empty-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .empty-subtext {
+            font-size: 13px;
+            color: #555;
+        }
+        
+        /* Loading State */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #888;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #333;
+            border-top-color: #0078d4;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 14px;
+            color: #999;
+        }
+        
+        /* Status Messages */
+        .status-bar {
+            padding: 8px 20px;
+            background: #2a2a2a;
+            border-top: 1px solid #000;
+            font-size: 12px;
+            color: #999;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="app-title">
+                📧 Email Contact Analyzer
+            </div>
+            <div class="header-controls">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search contacts...">
+                <button class="scan-button" id="scanButton">Scan Emails</button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Sidebar - Contacts -->
+            <div class="contacts-sidebar">
+                <div class="sidebar-header">
+                    <span>Correspondent</span>
+                    <span class="contact-count" id="contactCount">0</span>
+                </div>
+                <div class="contacts-list" id="contactsList">
+                    <div class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        <div class="empty-text">No contacts yet</div>
+                        <div class="empty-subtext">Click "Scan Emails" to start</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Emails -->
+            <div class="emails-panel">
+                <div class="emails-header" id="emailsHeader" style="display: none;">
+                    <div class="emails-title" id="selectedContactName">Select a contact</div>
+                    <div class="email-stats" id="emailStats"></div>
+                </div>
+                <div class="emails-list" id="emailsList">
+                    <div class="empty-state">
+                        <div class="empty-icon">📬</div>
+                        <div class="empty-text">Select a contact to view emails</div>
+                        <div class="empty-subtext">Contact list will appear on the left</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span id="statusText">Ready</span>
+            <span id="statusStats"></span>
+        </div>
+    </div>
+    
+    <script>
+        let contactsData = [];
+        let allEmailsData = [];
+        let selectedContact = null;
+        
+        Office.onReady((info) => {
+            if (info.host === Office.HostType.Outlook) {
+                document.getElementById("scanButton").onclick = scanEmails;
+                document.getElementById("searchBox").addEventListener("input", filterContacts);
+            }
+        });
+        
+        async function scanEmails() {
+            const scanButton = document.getElementById("scanButton");
+            const contactsList = document.getElementById("contactsList");
+            const emailsList = document.getElementById("emailsList");
+            
+            scanButton.disabled = true;
+            contactsData = [];
+            allEmailsData = [];
+            selectedContact = null;
+            
+            // Show loading states
+            contactsList.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Scanning emails...</div>
+                </div>
+            `;
+            
+            emailsList.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Processing...</div>
+                </div>
+            `;
+            
+            updateStatus("Scanning emails...", "");
+            
+            try {
+                const mailbox = Office.context.mailbox;
+                
+                mailbox.getCallbackTokenAsync({ isRest: true }, async (result) => {
+                    if (result.status === "succeeded") {
+                        const accessToken = result.value;
+                        
+                        try {
+                            await fetchEmailsFromREST(accessToken);
+                            processContacts();
+                            displayContacts();
+                            
+                            emailsList.innerHTML = `
+                                <div class="empty-state">
+                                    <div class="empty-icon">📬</div>
+                                    <div class="empty-text">Select a contact to view emails</div>
+                                    <div class="empty-subtext">${contactsData.length} contacts found</div>
+                                </div>
+                            `;
+                            
+                            updateStatus("Ready", `${contactsData.length} contacts • ${allEmailsData.length} emails`);
+                        } catch (error) {
+                            updateStatus("Error: " + error.message, "");
+                            contactsList.innerHTML = `
+                                <div class="empty-state">
+                                    <div class="empty-icon">⚠️</div>
+                                    <div class="empty-text">Error scanning emails</div>
+                                    <div class="empty-subtext">Please try again</div>
+                                </div>
+                            `;
+                            emailsList.innerHTML = `
+                                <div class="empty-state">
+                                    <div class="empty-icon">📬</div>
+                                    <div class="empty-text">Select a contact to view emails</div>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        updateStatus("Authentication failed", "");
+                        contactsList.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-icon">⚠️</div>
+                                <div class="empty-text">Authentication failed</div>
+                                <div class="empty-subtext">Please try again</div>
+                            </div>
+                        `;
+                    }
+                    
+                    scanButton.disabled = false;
+                });
+                
+            } catch (error) {
+                updateStatus("Error: " + error.message, "");
+                scanButton.disabled = false;
+            }
+        }
+        
+        async function fetchEmailsFromREST(accessToken) {
+            const restUrl = Office.context.mailbox.restUrl;
+            const getMessagesUrl = `${restUrl}/v2.0/me/messages?$top=500&$select=toRecipients,ccRecipients,bccRecipients,subject,receivedDateTime,from`;
+            
+            const response = await fetch(getMessagesUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            allEmailsData = data.value || [];
+        }
+        
+        function processContacts() {
+            const contactMap = new Map();
+            
+            allEmailsData.forEach(email => {
+                // Process TO recipients
+                if (email.toRecipients) {
+                    email.toRecipients.forEach(recipient => {
+                        addContactToMap(contactMap, recipient.emailAddress, 'to', email);
+                    });
+                }
+                
+                // Process CC recipients
+                if (email.ccRecipients) {
+                    email.ccRecipients.forEach(recipient => {
+                        addContactToMap(contactMap, recipient.emailAddress, 'cc', email);
+                    });
+                }
+                
+                // Process BCC recipients
+                if (email.bccRecipients) {
+                    email.bccRecipients.forEach(recipient => {
+                        addContactToMap(contactMap, recipient.emailAddress, 'bcc', email);
+                    });
+                }
+            });
+            
+            contactsData = Array.from(contactMap.values()).sort((a, b) => b.totalCount - a.totalCount);
+        }
+        
+        function addContactToMap(contactMap, emailAddress, recipientType, email) {
+            if (!emailAddress || !emailAddress.address) return;
+            
+            const address = emailAddress.address.toLowerCase();
+            
+            if (!contactMap.has(address)) {
+                contactMap.set(address, {
+                    email: emailAddress.address,
+                    name: emailAddress.name || emailAddress.address,
+                    toCount: 0,
+                    ccCount: 0,
+                    bccCount: 0,
+                    totalCount: 0,
+                    emails: []
+                });
+            }
+            
+            const contact = contactMap.get(address);
+            
+            if (recipientType === 'to') contact.toCount++;
+            else if (recipientType === 'cc') contact.ccCount++;
+            else if (recipientType === 'bcc') contact.bccCount++;
+            
+            contact.totalCount++;
+            
+            contact.emails.push({
+                subject: email.subject || '(No subject)',
+                receivedDateTime: email.receivedDateTime,
+                recipientType: recipientType,
+                from: email.from ? email.from.emailAddress.name || email.from.emailAddress.address : 'Unknown'
+            });
+        }
+        
+        function displayContacts() {
+            const contactsList = document.getElementById("contactsList");
+            document.getElementById("contactCount").textContent = contactsData.length;
+            
+            if (contactsData.length === 0) {
+                contactsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">No contacts found</div>
+                        <div class="empty-subtext">Your inbox appears empty</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            contactsData.forEach(contact => {
+                const displayName = contact.name !== contact.email ? contact.name : contact.email.split('@')[0];
+                html += `
+                    <div class="contact-item" onclick="selectContact('${escapeHtml(contact.email)}')">
+                        <div class="contact-icon"></div>
+                        <div class="contact-info">
+                            <div class="contact-name">${escapeHtml(displayName)}</div>
+                            <div class="contact-email">${escapeHtml(contact.email)}</div>
+                        </div>
+                        <div class="contact-badge">${contact.totalCount}</div>
+                    </div>
+                `;
+            });
+            
+            contactsList.innerHTML = html;
+        }
+        
+        function selectContact(email) {
+            selectedContact = contactsData.find(c => c.email === email);
+            
+            if (!selectedContact) return;
+            
+            // Update selected state
+            document.querySelectorAll('.contact-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            displayEmailsForContact();
+        }
+        
+        function displayEmailsForContact() {
+            const emailsList = document.getElementById("emailsList");
+            const emailsHeader = document.getElementById("emailsHeader");
+            const selectedContactName = document.getElementById("selectedContactName");
+            const emailStats = document.getElementById("emailStats");
+            
+            if (!selectedContact) {
+                emailsHeader.style.display = 'none';
+                emailsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📬</div>
+                        <div class="empty-text">Select a contact to view emails</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            emailsHeader.style.display = 'flex';
+            selectedContactName.textContent = selectedContact.name;
+            
+            // Update stats
+            let statsHtml = '';
+            if (selectedContact.toCount > 0) {
+                statsHtml += `<div class="stat-item"><span class="stat-badge to">TO</span> ${selectedContact.toCount}</div>`;
+            }
+            if (selectedContact.ccCount > 0) {
+                statsHtml += `<div class="stat-item"><span class="stat-badge cc">CC</span> ${selectedContact.ccCount}</div>`;
+            }
+            if (selectedContact.bccCount > 0) {
+                statsHtml += `<div class="stat-item"><span class="stat-badge bcc">BCC</span> ${selectedContact.bccCount}</div>`;
+            }
+            emailStats.innerHTML = statsHtml;
+            
+            // Sort emails by date
+            const sortedEmails = selectedContact.emails.sort((a, b) => 
+                new Date(b.receivedDateTime) - new Date(a.receivedDateTime)
+            );
+            
+            // Display emails
+            let html = '';
+            sortedEmails.forEach(email => {
+                const date = new Date(email.receivedDateTime);
+                const dateStr = formatDate(date);
+                
+                html += `
+                    <div class="email-row">
+                        <div class="email-icon">
+                            <div class="icon-indicator ${email.recipientType}"></div>
+                        </div>
+                        <div class="email-from">${escapeHtml(email.from)}</div>
+                        <div class="email-subject">${escapeHtml(email.subject)}</div>
+                        <div class="email-date">${dateStr}</div>
+                    </div>
+                `;
+            });
+            
+            emailsList.innerHTML = html;
+        }
+        
+        function filterContacts() {
+            const searchTerm = document.getElementById("searchBox").value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayContacts();
+                return;
+            }
+            
+            const filteredContacts = contactsData.filter(contact => 
+                contact.email.toLowerCase().includes(searchTerm) || 
+                contact.name.toLowerCase().includes(searchTerm)
+            );
+            
+            const contactsList = document.getElementById("contactsList");
+            
+            if (filteredContacts.length === 0) {
+                contactsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <div class="empty-text">No matches found</div>
+                        <div class="empty-subtext">Try a different search term</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            filteredContacts.forEach(contact => {
+                const displayName = contact.name !== contact.email ? contact.name : contact.email.split('@')[0];
+                const isSelected = selectedContact && selectedContact.email === contact.email;
+                html += `
+                    <div class="contact-item ${isSelected ? 'selected' : ''}" onclick="selectContact('${escapeHtml(contact.email)}')">
+                        <div class="contact-icon"></div>
+                        <div class="contact-info">
+                            <div class="contact-name">${escapeHtml(displayName)}</div>
+                            <div class="contact-email">${escapeHtml(contact.email)}</div>
+                        </div>
+                        <div class="contact-badge">${contact.totalCount}</div>
+                    </div>
+                `;
+            });
+            
+            contactsList.innerHTML = html;
+        }
+        
+        function updateStatus(text, stats) {
+            document.getElementById("statusText").textContent = text;
+            document.getElementById("statusStats").textContent = stats;
+        }
+        
+        function formatDate(date) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const emailDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            
+            if (emailDate.getTime() === today.getTime()) {
+                return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            } else if (emailDate.getTime() === yesterday.getTime()) {
+                return 'Yesterday';
+            } else if (now.getFullYear() === date.getFullYear()) {
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            } else {
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            }
+        }
+        
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>

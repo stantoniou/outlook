@@ -1,0 +1,24 @@
+{
+  "name": "outlook-contact-analyzer",
+  "version": "1.0.0",
+  "description": "Outlook add-in that analyzes emails and creates a contact-based view",
+  "main": "taskpane.js",
+  "scripts": {
+    "start": "npx http-server -S -C cert.pem -K key.pem -p 8080",
+    "validate": "office-addin-manifest validate manifest.xml"
+  },
+  "keywords": [
+    "outlook",
+    "addin",
+    "office",
+    "email",
+    "contacts",
+    "analyzer"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "office-addin-manifest": "^1.12.3"
+  }
+}

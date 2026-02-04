@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Contact Analyzer - New Layout Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            height: 100vh;
+            overflow: hidden;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .preview-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .preview-header h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .preview-header p {
+            color: #999;
+            font-size: 16px;
+        }
+        
+        /* Simulated Application */
+        .app-window {
+            flex: 1;
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            border: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .top-header {
+            background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+            padding: 12px 20px;
+            border-bottom: 1px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-box {
+            padding: 6px 12px;
+            background: #4a4a4a;
+            border: 1px solid #5a5a5a;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+            width: 200px;
+        }
+        
+        .scan-button {
+            padding: 6px 16px;
+            background: linear-gradient(180deg, #0078d4 0%, #0063b1 100%);
+            border: 1px solid #0063b1;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Left Sidebar */
+        .contacts-sidebar {
+            width: 280px;
+            background: #2a2a2a;
+            border-right: 1px solid #000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 10px 16px;
+            background: #333;
+            border-bottom: 1px solid #000;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .contact-count {
+            background: #0078d4;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .contact-item {
+            padding: 10px 16px;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .contact-item:hover {
+            background: #353535;
+        }
+        
+        .contact-item.selected {
+            background: #0078d4;
+            border-left: 3px solid #00a2ff;
+        }
+        
+        .contact-icon {
+            width: 10px;
+            height: 10px;
+            background: #666;
+            border-radius: 2px;
+        }
+        
+        .contact-item.selected .contact-icon {
+            background: #fff;
+        }
+        
+        .contact-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .contact-name {
+            font-size: 12px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .contact-email {
+            font-size: 10px;
+            color: #999;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .contact-badge {
+            background: #444;
+            color: #aaa;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .contact-item.selected .contact-badge {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        
+        /* Right Panel */
+        .emails-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+        }
+        
+        .emails-header {
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border-bottom: 1px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .emails-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .email-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 11px;
+        }
+        
+        .stat-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        .stat-badge.to { background: #1e40af; color: #dbeafe; }
+        .stat-badge.cc { background: #92400e; color: #fef3c7; }
+        
+        .emails-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .email-row {
+            display: grid;
+            grid-template-columns: 40px 180px 1fr 140px;
+            gap: 12px;
+            padding: 8px 20px;
+            border-bottom: 1px solid #2a2a2a;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .email-row:hover {
+            background: #252525;
+        }
+        
+        .icon-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .icon-indicator.to { background: #3b82f6; }
+        .icon-indicator.cc { background: #f59e0b; }
+        
+        .email-from {
+            color: #fff;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .email-subject {
+            color: #ccc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .email-date {
+            color: #888;
+            text-align: right;
+        }
+        
+        .status-bar {
+            padding: 6px 20px;
+            background: #2a2a2a;
+            border-top: 1px solid #000;
+            font-size: 11px;
+            color: #999;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* Annotations */
+        .annotation-container {
+            position: relative;
+            margin-top: 30px;
+        }
+        
+        .annotation {
+            background: #fbbf24;
+            color: #1a1a1a;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        
+        .feature-list {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-list h3 {
+            color: #60a5fa;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .feature-item {
+            background: #1a1a1a;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #3a3a3a;
+        }
+        
+        .feature-item h4 {
+            color: #60a5fa;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .feature-item p {
+            color: #999;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <div class="preview-header">
+            <h1>📧 Email Contact Analyzer - New Layout</h1>
+            <p>Mail client style: Contacts on left, emails on right</p>
+        </div>
+        
+        <div class="app-window">
+            <div class="top-header">
+                <div class="app-title">📧 Email Contact Analyzer</div>
+                <div class="header-controls">
+                    <input type="text" class="search-box" placeholder="Search contacts...">
+                    <button class="scan-button">Scan Emails</button>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <!-- Left: Contacts -->
+                <div class="contacts-sidebar">
+                    <div class="sidebar-header">
+                        <span>Correspondent</span>
+                        <span class="contact-count">47</span>
+                    </div>
+                    <div class="contacts-list">
+                        <div class="contact-item selected">
+                            <div class="contact-icon"></div>
+                            <div class="contact-info">
+                                <div class="contact-name">Sarah Johnson</div>
+                                <div class="contact-email">sarah.johnson@company.com</div>
+                            </div>
+                            <div class="contact-badge">42</div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon"></div>
+                            <div class="contact-info">
+                                <div class="contact-name">Michael Chen</div>
+                                <div class="contact-email">m.chen@company.com</div>
+                            </div>
+                            <div class="contact-badge">38</div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon"></div>
+                            <div class="contact-info">
+                                <div class="contact-name">Project Team</div>
+                                <div class="contact-email">project-team@company.com</div>
+                            </div>
+                            <div class="contact-badge">29</div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon"></div>
+                            <div class="contact-info">
+                                <div class="contact-name">Emma Davis</div>
+                                <div class="contact-email">emma.davis@partner.com</div>
+                            </div>
+                            <div class="contact-badge">23</div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon"></div>
+                            <div class="contact-info">
+                                <div class="contact-name">Vendor Admin</div>
+                                <div class="contact-email">admin@vendor.com</div>
+                            </div>
+                            <div class="contact-badge">15</div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon"></div>
+                            <div class="contact-info">
+                                <div class="contact-name">Alex Rivera</div>
+                                <div class="contact-email">alex.r@client.com</div>
+                            </div>
+                            <div class="contact-badge">12</div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon"></div>
+                            <div class="contact-info">
+                                <div class="contact-name">Support Team</div>
+                                <div class="contact-email">support@service.com</div>
+                            </div>
+                            <div class="contact-badge">8</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right: Emails -->
+                <div class="emails-panel">
+                    <div class="emails-header">
+                        <div class="emails-title">Sarah Johnson</div>
+                        <div class="email-stats">
+                            <span><span class="stat-badge to">TO</span> 28</span>
+                            <span><span class="stat-badge cc">CC</span> 14</span>
+                        </div>
+                    </div>
+                    <div class="emails-list">
+                        <div class="email-row">
+                            <div><div class="icon-indicator to"></div></div>
+                            <div class="email-from">Sarah Johnson</div>
+                            <div class="email-subject">Q1 Project Status Update</div>
+                            <div class="email-date">Today, 2:30 PM</div>
+                        </div>
+                        
+                        <div class="email-row">
+                            <div><div class="icon-indicator cc"></div></div>
+                            <div class="email-from">Project Manager</div>
+                            <div class="email-subject">RE: Budget Allocation Meeting</div>
+                            <div class="email-date">Today, 11:15 AM</div>
+                        </div>
+                        
+                        <div class="email-row">
+                            <div><div class="icon-indicator to"></div></div>
+                            <div class="email-from">Sarah Johnson</div>
+                            <div class="email-subject">Team Review - Action Items</div>
+                            <div class="email-date">Yesterday</div>
+                        </div>
+                        
+                        <div class="email-row">
+                            <div><div class="icon-indicator to"></div></div>
+                            <div class="email-from">Sarah Johnson</div>
+                            <div class="email-subject">FW: Client Feedback Summary</div>
+                            <div class="email-date">Jan 26</div>
+                        </div>
+                        
+                        <div class="email-row">
+                            <div><div class="icon-indicator cc"></div></div>
+                            <div class="email-from">Team Lead</div>
+                            <div class="email-subject">Weekly Status Report</div>
+                            <div class="email-date">Jan 24</div>
+                        </div>
+                        
+                        <div class="email-row">
+                            <div><div class="icon-indicator to"></div></div>
+                            <div class="email-from">Sarah Johnson</div>
+                            <div class="email-subject">RE: Project Timeline Discussion</div>
+                            <div class="email-date">Jan 23</div>
+                        </div>
+                        
+                        <div class="email-row">
+                            <div><div class="icon-indicator to"></div></div>
+                            <div class="email-from">Sarah Johnson</div>
+                            <div class="email-subject">Meeting Notes - Q1 Planning</div>
+                            <div class="email-date">Jan 22</div>
+                        </div>
+                        
+                        <div class="email-row">
+                            <div><div class="icon-indicator cc"></div></div>
+                            <div class="email-from">Department Head</div>
+                            <div class="email-subject">Strategic Review Session</div>
+                            <div class="email-date">Jan 21</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-bar">
+                <span>Ready</span>
+                <span>47 contacts • 245 emails</span>
+            </div>
+        </div>
+        
+        <div class="feature-list">
+            <h3>✨ Key Features of This Layout</h3>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h4>👥 Contact Sidebar (Left)</h4>
+                    <p>Browse all contacts sorted by email frequency. Shows contact name, email address, and total email count. Click any contact to view their emails.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h4>📧 Email List (Right)</h4>
+                    <p>View all emails from the selected contact. Shows sender, subject, date, and recipient type (To/CC/BCC) with color-coded indicators.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h4>🔍 Real-time Search</h4>
+                    <p>Type in the search box to instantly filter contacts by name or email address. Perfect for finding specific people or domains quickly.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h4>📊 Statistics Display</h4>
+                    <p>See breakdown of To/CC/BCC counts for each selected contact in the emails header. Status bar shows total counts at the bottom.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h4>🎨 Dark Theme Interface</h4>
+                    <p>Professional dark theme reduces eye strain and matches modern mail client aesthetics. Selected contact is highlighted in blue.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h4>⚡ Quick Navigation</h4>
+                    <p>Single-click to switch between contacts. Emails load instantly. Smooth scrolling for long contact and email lists.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
